@@ -1,14 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import newRequest from "../utils/newRequest";
 import moment from "moment";
 
 const Messages = () => {
   const queryClient = useQueryClient();
-  const [currentUser, setCurrentUser] = React.useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const userStr = localStorage.getItem("currentUser");
     if (userStr) {
       try {
@@ -21,20 +21,12 @@ const Messages = () => {
 
   const { isPending, error, data: conversations } = useQuery({
     queryKey: ["conversations"],
-    queryFn: async () => {
-      const response = await newRequest.get("/conversations");
-      console.log("Fetched conversations:", response.data);
-      return response.data;
-    },
+    queryFn: () => newRequest.get("/conversations").then((res) => res.data),
     enabled: !!currentUser,
   });
 
   const mutation = useMutation({
-    mutationFn: async (id) => {
-      const response = await newRequest.put(`/conversations/${id}`);
-      console.log("Updated conversation read status:", response.data);
-      return response.data;
-    },
+    mutationFn: (id) => newRequest.put(`/conversations/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries(["conversations"]);
     },
@@ -46,19 +38,17 @@ const Messages = () => {
 
   return (
     <div className="flex justify-center">
-      <div className="w-full max-w-[1400px] py-12 px-4 md:px-6">
-        <div className="flex justify-between items-center mb-6">
+      <div className="w-full max-w-7xl py-12 px-6">
+        <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">Messages</h1>
         </div>
 
-        {!currentUser ? (
-          <div className="text-center py-10">Please log in to view messages</div>
-        ) : isPending ? (
-          <div className="text-center py-10">Loading conversations...</div>
+        {isPending ? (
+          <div className="text-center py-10 text-gray-500">Loading conversations...</div>
         ) : error ? (
-          <div className="text-center py-10 text-red-500">Error: {error.message || 'Could not load messages'}</div>
+          <div className="text-center py-10 text-red-600">Error: Could not load messages.</div>
         ) : (
-          <table className="w-full border-separate" style={{ borderSpacing: '0 1rem' }}>
+          <table className="w-full border-separate border-spacing-y-4">
             <thead>
               <tr className="text-left h-12">
                 <th className="p-3 font-medium text-gray-500 uppercase">
@@ -73,15 +63,16 @@ const Messages = () => {
               {conversations?.map((c) => (
                 <tr
                   key={c._id}
-                  className={`transition-colors duration-200 ${
+                  className={`transition-colors duration-200 rounded-md shadow-sm ${
                     ((currentUser.isSeller && !c.readBySeller) ||
                       (!currentUser.isSeller && !c.readByBuyer))
                       ? "bg-green-50" 
                       : "bg-white"
                   }`}
                 >
-                  <td className="p-4 font-medium rounded-l-md">
-                    {currentUser.isSeller ? c.buyerId : c.sellerId}
+                  <td className="p-4 font-semibold text-gray-800 rounded-l-md">
+                    {/* DISPLAY USERNAME INSTEAD OF ID */}
+                    {currentUser.isSeller ? c.buyerId.username : c.sellerId.username}
                   </td>
                   <td className="p-4 text-gray-600">
                     <Link to={`/message/${c._id}`} className="hover:underline">
