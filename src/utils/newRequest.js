@@ -1,19 +1,27 @@
 import axios from "axios";
 
 const newRequest = axios.create({
-  baseURL: "https://talent-forge-backend.onrender.com/api",
+  baseURL: "http://localhost:8000/api",
   withCredentials: true,
 });
 
-newRequest.interceptors.request.use((config) => {
-  const userStr = localStorage.getItem("currentUser");
-  if (userStr) {
-    const user = JSON.parse(userStr);
-    if (user?.token) {
-      config.headers.Authorization = `Bearer ${user.token}`;
-    }
-  }
-  return config;
-});
+// Add an interceptor to include the token in requests
+// newRequest.interceptors.request.use((config) => {
+//   const token = localStorage.getItem("accessToken");
+//   if (token) {
+//     config.headers.Authorization = `Bearer ${token}`;
+//   }
+//   return config;
+// });om "axios";
+
+
+// Add an interceptor to include the token in requests
+// newRequest.interceptors.request.use((config) => {
+//   const token = localStorage.getItem("accessToken");
+//   if (token) {
+//     config.headers.Authorization = `Bearer ${token}`;
+//   }
+//   return config;
+// });
 
 export default newRequest;

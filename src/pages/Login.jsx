@@ -16,27 +16,19 @@ const Login = () => {
     setError(null);
 
     try {
+      console.log('Attempting login with:', { username });
       const res = await newRequest.post("/auth/login", {
         username,
         password,
       });
-      
-      console.log("Login response:", res.data); // Debug log
-      
-      if (!res.data.user) {
-        throw new Error("User data not found in response");
-      }
-      
-      // Store the user object which now includes the token
+      console.log('Login response:', res.data);
       localStorage.setItem("currentUser", JSON.stringify(res.data.user));
-      
-      // Verify the data was stored
-      const storedData = JSON.parse(localStorage.getItem("currentUser"));
-      console.log("Stored data verification:", storedData); // Debug log
-      
       navigate("/");
     } catch (err) {
+      console.error('Login error:', err);
       setError(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
