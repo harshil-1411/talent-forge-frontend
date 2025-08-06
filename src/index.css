@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Add this to your global stylesheet (e.g., src/index.css) */
+
+.carousel-prev,
+.carousel-next {
+  @apply w-[50px] h-[50px] bg-gray-100 rounded-full absolute top-0 bottom-0 my-auto shadow-md flex items-center justify-center;
+}
+
+.carousel-prev {
+  @apply left-[-25px];
+}
+
+.carousel-next {
+  @apply right-[-25px];
+}
